@@ -33,14 +33,14 @@ GameObject.prototype.destroy = function() {
   * should inherit destroy() from GameObject's prototype
 */
 
-function healthPoints(HPattributes) {
+function CharacterStats(HPattributes) {
   GameObject.call(this, HPattributes);
   this.healthPoints = HPattributes.healthPoints;
 }
 
-healthPoints.prototype = Object.create(GameObject.prototype);
+CharacterStats.prototype = Object.create(GameObject.prototype);
 
-healthPoints.prototype.takeDamage = function() {
+CharacterStats.prototype.takeDamage = function() {
   return `${this.name} took damage.`;
 }
 
@@ -55,13 +55,13 @@ healthPoints.prototype.takeDamage = function() {
 */
 
 function Humanoid(HMattributes) {
-  healthPoints.call(this, HMattributes);
+  CharacterStats.call(this, HMattributes);
   this.team = HMattributes.team;
   this.weapons = HMattributes.weapons;
   this.language = HMattributes.language;
 }
 
-Humanoid.prototype = Object.create(healthPoints.prototype);
+Humanoid.prototype = Object.create(CharacterStats.prototype);
 
 Humanoid.prototype.greet = function() {
   return `${this.name} offers a greeting in ${this.language}`;
@@ -143,3 +143,105 @@ Humanoid.prototype.greet = function() {
   // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
   // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
   // * Create two new objects, one a villain and one a hero and fight it out with methods!
+
+function Hero(HRattributes) {
+  Humanoid.call(this,HRattributes);
+}
+
+Hero.prototype = Object.create(Humanoid.prototype);
+
+Hero.prototype.attack = function(weapon, enemy) {
+  var attack = Math.round(Math.random()*100);
+  console.log(`${this.name} attacks ${enemy.name} with his ${weapon} for ${attack} damage.`);
+  enemy.healthPoints -= attack;
+  console.log(`${enemy.name} has ${enemy.healthPoints} health points left.`)
+  return enemy;
+}
+
+function Villain(HRattributes) {
+  Humanoid.call(this,HRattributes);
+}
+
+Villain.prototype = Object.create(Humanoid.prototype);
+
+Villain.prototype.attack = function(weapon, enemy) {
+  var attack = Math.round(Math.random()*100);
+  console.log(`${this.name} attacks ${enemy.name} with his ${weapon} for ${attack} damage.`);
+  enemy.healthPoints -= attack;
+  console.log(`${enemy.name} has ${enemy.healthPoints} health points left.`)
+  return enemy;
+}
+
+const theHero = new Hero({
+  createdAt: new Date(),
+  dimensions: {
+    length: 2,
+    width: 2,
+    height: 2,
+  },
+  healthPoints: 100,
+  name: 'Blessed Bob',
+  team: 'Good Guys',
+  weapons: [
+    'Long Sword',
+    'Shield',
+  ],
+  language: 'Common Tongue',
+});
+
+const theVillain = new Villain({
+  createdAt: new Date(),
+  dimensions: {
+    length: 2,
+    width: 2,
+    height: 2,
+  },
+  healthPoints: 100,
+  name: 'Evil Eric',
+  team: 'Bad Guys',
+  weapons: [
+    'Magic Staff',
+    'Shield',
+  ],
+  language: 'Common Tongue',
+});
+
+function fight(hero, villain) {
+  var whoGoesFirst = Math.random();
+  if (whoGoesFirst >= 0.5) {
+    console.log(`${hero.team} attack first!`);
+    while (hero.healthPoints >= 0 && villain.healthPoints >=0) {
+      hero.attack(hero.weapons[0],villain);
+      if (villain.healthPoints <= 0) {
+        console.log(villain.destroy());
+        console.log(`${hero.team} win!`);
+        break;
+      }
+      villain.attack(villain.weapons[0],hero);
+      if (hero.healthPoints <= 0) {
+        console.log(hero.destroy());
+        console.log(`${villain.team} win!`);
+        break;
+      }
+    }
+  }
+  else {
+    console.log(`${villain.team} attack first!`);
+    while (hero.healthPoints >= 0 && villain.healthPoints >=0) {
+      villain.attack(villain.weapons[0],hero);
+      if (hero.healthPoints <= 0) {
+        console.log(hero.destroy());
+        console.log(`${villain.team} win!`);
+        break;
+      }
+      hero.attack(hero.weapons[0],villain);
+      if (villain.healthPoints <= 0) {
+        console.log(villain.destroy());
+        console.log(`${hero.team} win!`);
+        break;
+      }
+    }
+  }
+}
+
+fight(theHero, theVillain);
